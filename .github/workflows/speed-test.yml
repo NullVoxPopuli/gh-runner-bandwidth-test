@@ -1,0 +1,35 @@
+name: Speed Test
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - how-fast-do-our-machines-go-SOX-51218
+
+jobs:
+  fast-dot-com:
+    name: "Fast.com x ${{ matrix.runner }}"
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 10
+    strategy:
+      # If one fails, they'll all fail (likely)
+      # so, let's not hog runners in that case.
+      fail-fast: true
+      matrix:
+        runner:
+          - ubuntu-latest 
+
+    steps:
+      - uses: actions/setup-node@v4 # v4
+        with:
+          node-version: 22
+      # Since we don't checkout code, we can safely always run the latest version
+      # of fast-cli
+      #
+      # Running locally:
+      #   npx puppeteer browsers install chrome
+      #   npx fast-cli --json
+      #     (locally this takes ~ 30s)
+      - run: npx fast-cli --upload --json
+        env:
+          CI: false
+
